@@ -22,11 +22,21 @@ fun QuizNavigation() {
         startDestination = "nameInput"
     ) {
 
-        // inactive
+        /**  old landing page
         composable("home") {
             HomeScreen(
                 onStartClick = {
                     navController.navigate("nameInput")
+                }
+            )
+        }
+        **/
+
+        composable("home") {
+            HomePageScreen(
+                username = userName,
+                onOpenQuiz = {
+                    navController.navigate("quizSetup")
                 }
             )
         }
@@ -36,7 +46,7 @@ fun QuizNavigation() {
 
                 onContinueClick = { name ->
                     userName = name.ifBlank { "Guest" }
-                    navController.navigate("quizSetup")
+                    navController.navigate("home")
                 },
 
                 //onBackClick = {
@@ -49,7 +59,8 @@ fun QuizNavigation() {
             QuizSetupScreen(
 
                 onStartQuiz = { difficulty, count ->
-
+                    // TODO: add "category" or something similars
+                    // so that users can switch between different datasets.
                     selectedQuestions = quizQuestions
                         .filter { it.difficulty == difficulty }
                         .shuffled()
@@ -70,7 +81,7 @@ fun QuizNavigation() {
                 },
 
                 onBackClick = {
-                    navController.navigate("nameInput")
+                    navController.popBackStack()
                 }
             )
         }

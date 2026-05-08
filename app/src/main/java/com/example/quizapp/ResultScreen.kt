@@ -132,7 +132,7 @@ fun ResultScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                text = "Restart Quiz",
+                text = "Finish",
                 style = MaterialTheme.typography.titleMedium
             )
         }

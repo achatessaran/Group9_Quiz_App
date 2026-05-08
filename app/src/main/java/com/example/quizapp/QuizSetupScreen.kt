@@ -22,7 +22,7 @@ fun QuizSetupScreen(
     onBackClick: () -> Unit
 ) {
     var selectedDifficulty by remember { mutableStateOf("Easy") }
-    var selectedQuestionCount by remember { mutableStateOf(5) }
+    var selectedQuestionCount by remember { mutableIntStateOf(5) }
 
     Column(
         modifier = Modifier
@@ -100,7 +100,7 @@ fun QuizSetupScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                text = "Back to Name",
+                text = "Back to Home",
                 style = MaterialTheme.typography.titleMedium
             )
         }
