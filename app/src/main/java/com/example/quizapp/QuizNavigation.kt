@@ -18,9 +18,11 @@ fun QuizNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        //startDestination = "home"
+        startDestination = "nameInput"
     ) {
 
+        // inactive
         composable("home") {
             HomeScreen(
                 onStartClick = {
@@ -37,9 +39,9 @@ fun QuizNavigation() {
                     navController.navigate("quizSetup")
                 },
 
-                onBackClick = {
-                    navController.navigate("home")
-                }
+                //onBackClick = {
+                    //navController.navigate("home")
+                //}
             )
         }
 

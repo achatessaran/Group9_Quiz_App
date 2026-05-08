@@ -3,6 +3,7 @@ package com.example.quizapp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -14,15 +15,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun NameInputScreen(
     onContinueClick: (String) -> Unit,
-    onBackClick: () -> Unit
+    //onBackClick: () -> Unit
 ) {
     var userName by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    val loginCompleted = userName.trim().isNotEmpty() && password.isNotBlank()
 
     Column(
         modifier = Modifier
@@ -33,9 +40,10 @@ fun NameInputScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Before We Start",
+            text = "Distaste2Learn",
             style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Light,
+            fontSize = 48.sp,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center
         )
@@ -44,13 +52,14 @@ fun NameInputScreen(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
+            //shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                /**
                 Text(
                     text = "Enter your name to personalize your quiz result.",
                     style = MaterialTheme.typography.bodyLarge,
@@ -58,13 +67,24 @@ fun NameInputScreen(
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
+                **/
 
                 OutlinedTextField(
                     value = userName,
                     onValueChange = { userName = it },
-                    label = { Text(text = "Your Name") },
+                    label = { Text(text = "Username") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(text = "Password") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
             }
         }
@@ -73,9 +93,9 @@ fun NameInputScreen(
 
         Button(
             onClick = {
-                onContinueClick(userName)
+                onContinueClick(userName.trim())
             },
-            enabled = userName.isNotBlank(),
+            enabled = loginCompleted,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
@@ -86,7 +106,7 @@ fun NameInputScreen(
                 style = MaterialTheme.typography.titleMedium
             )
         }
-
+        /**
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedButton(
@@ -101,5 +121,6 @@ fun NameInputScreen(
                 style = MaterialTheme.typography.titleMedium
             )
         }
+        **/
     }
 }
