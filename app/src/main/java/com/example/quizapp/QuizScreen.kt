@@ -19,12 +19,24 @@ fun QuizScreen(
     onQuizComplete: (Int, List<String>) -> Unit,
     onExitQuiz: () -> Unit
 ) {
-    var currentQuestionIndex by remember { mutableStateOf(0) }
-    var selectedAnswer by remember { mutableStateOf("") }
-    var score by remember { mutableStateOf(0) }
-    var userAnswers by remember { mutableStateOf(listOf<String>()) }
-    var timeLeft by remember { mutableStateOf(totalTimeInSeconds) }
-    var isQuizFinished by remember { mutableStateOf(false) }
+    require(questions.isNotEmpty()) { "QuizScreen requires at least one question" }
+
+    var currentQuestionIndex by remember(questions) { mutableStateOf(0) }
+    var selectedAnswer by remember(questions) { mutableStateOf("") }
+    val userAnswers = remember(questions) {
+        mutableStateListOf<String>().apply {
+            repeat(questions.size) { add("") }
+        }
+    }
+    var timeLeft by remember(questions, totalTimeInSeconds) { mutableStateOf(totalTimeInSeconds) }
+    var isQuizFinished by remember(questions) { mutableStateOf(false) }
+
+    fun finishQuiz() {
+        val finalScore = questions.indices.count { index ->
+            userAnswers.getOrNull(index) == questions[index].correctAnswer
+        }
+        onQuizComplete(finalScore, userAnswers.toList())
+    }
 
     val currentQuestion = questions[currentQuestionIndex]
     val shuffledOptions = remember(currentQuestionIndex) {
@@ -36,7 +48,7 @@ fun QuizScreen(
             timeLeft--
         } else if (timeLeft == 0 && !isQuizFinished) {
             isQuizFinished = true
-            onQuizComplete(score, userAnswers)
+            finishQuiz()
         }
     }
 
@@ -114,26 +126,47 @@ fun QuizScreen(
             AnswerOptionCard(
                 optionText = option,
                 selected = selectedAnswer == option,
-                onClick = { selectedAnswer = option }
+                onClick = {
+                    selectedAnswer = option
+                    userAnswers[currentQuestionIndex] = option
+                }
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
+        Button(
+            onClick = {
+                userAnswers[currentQuestionIndex] = selectedAnswer
+
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--
+                    selectedAnswer = userAnswers[currentQuestionIndex]
+                }
+            },
+            enabled = (currentQuestionIndex > 0),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Prev Question",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         Button(
             onClick = {
-                if (selectedAnswer == currentQuestion.correctAnswer) {
-                    score++
-                }
-
-                userAnswers = userAnswers + selectedAnswer
+                userAnswers[currentQuestionIndex] = selectedAnswer
 
                 if (currentQuestionIndex < questions.size - 1) {
                     currentQuestionIndex++
-                    selectedAnswer = ""
+                    selectedAnswer = userAnswers[currentQuestionIndex]
                 } else {
                     isQuizFinished = true
-                    onQuizComplete(score, userAnswers + selectedAnswer)
+                    finishQuiz()
                 }
             },
             enabled = selectedAnswer.isNotBlank(),
