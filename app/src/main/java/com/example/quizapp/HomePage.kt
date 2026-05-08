@@ -22,7 +22,7 @@ fun HomePageScreen(
     onOpenQuiz: () -> Unit
 ) {
     // TODO: add new quiz sets to database!
-    var studySets = listOf(
+    val studySets = listOf(
         "Kotlin Quiz Set",
         "UX Design (coming soon)",
         "Art History (coming soon)",
