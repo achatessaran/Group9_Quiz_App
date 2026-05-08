@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 @Composable
 fun QuizScreen(
@@ -54,7 +55,7 @@ fun QuizScreen(
 
     val minutes = timeLeft / 60
     val seconds = timeLeft % 60
-    val formattedTime = String.format("%02d:%02d", minutes, seconds)
+    val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 
     Column(
         modifier = Modifier
