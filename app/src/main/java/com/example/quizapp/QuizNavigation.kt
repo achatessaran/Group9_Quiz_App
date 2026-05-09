@@ -37,7 +37,9 @@ fun QuizNavigation() {
                 username = userName,
                 onOpenQuiz = {
                     navController.navigate("quizSetup")
-                }
+                },
+                onLogOut = {
+                    navController.navigate("nameInput")}
             )
         }
 
