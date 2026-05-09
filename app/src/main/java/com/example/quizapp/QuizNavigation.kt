@@ -15,6 +15,7 @@ fun QuizNavigation() {
     var finalScore by remember { mutableStateOf(0) }
     var userAnswers by remember { mutableStateOf(listOf<String>()) }
     var totalQuizTime by remember { mutableStateOf(300) }
+    var selectedCategory by remember { mutableStateOf("Kotlin") }
 
     NavHost(
         navController = navController,
@@ -35,7 +36,8 @@ fun QuizNavigation() {
         composable("home") {
             HomePageScreen(
                 username = userName,
-                onOpenQuiz = {
+                onOpenQuiz = { category ->
+                    selectedCategory = category
                     navController.navigate("quizSetup")
                 }
             )
@@ -62,7 +64,10 @@ fun QuizNavigation() {
                     // TODO: add "category" or something similars
                     // so that users can switch between different datasets.
                     selectedQuestions = quizQuestions
-                        .filter { it.difficulty == difficulty }
+                        .filter {
+                            it.difficulty == difficulty &&
+                                    it.category == selectedCategory
+                        }
                         .shuffled()
                         .take(count)
 

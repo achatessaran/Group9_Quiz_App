@@ -3,6 +3,7 @@ package com.example.quizapp
 sealed interface Question {
     val questionText: String
     val difficulty: String
+    val category: String
 }
 
 data class MCQuestion(
@@ -10,12 +11,14 @@ data class MCQuestion(
     val options: List<String>,
     val correctAnswer: String,
     override val difficulty: String,
+    override val category: String = "Kotlin"
 ) : Question
 
 data class FITBQuestion(
     override val questionText: String,
     val correctAnswer: String,
     override val difficulty: String,
+    override val category: String = "Kotlin"
 ) : Question
 
 val quizQuestions: List<Question> = listOf(
@@ -70,5 +73,484 @@ val quizQuestions: List<Question> = listOf(
     MCQuestion("What is the risk of adding Firebase near the deadline?", listOf("Increased complexity and integration risk", "No internet required", "Less code needed", "Automatic marks"), "Increased complexity and integration risk", "Hard"),
     MCQuestion("Why should the app be tested on an emulator?", listOf("To verify functionality before submission", "To create quiz questions", "To write README only", "To change package name"), "To verify functionality before submission", "Hard"),
     MCQuestion("What is the purpose of selected answer highlighting?", listOf("To improve user feedback", "To reduce app size", "To disable navigation", "To hide questions"), "To improve user feedback", "Hard"),
-    MCQuestion("Why is a progress bar useful in a quiz app?", listOf("It shows quiz completion progress", "It stores passwords", "It connects to Firebase", "It improves CPU speed"), "It shows quiz completion progress", "Hard")
+    MCQuestion("Why is a progress bar useful in a quiz app?", listOf("It shows quiz completion progress", "It stores passwords", "It connects to Firebase", "It improves CPU speed"), "It shows quiz completion progress", "Hard"),
+
+    // UI Design - Easy Questions
+
+    MCQuestion(
+        "What does UI stand for?",
+        listOf("User Interface", "Universal Input", "User Internet", "Unit Integration"),
+        "User Interface",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What does UX stand for?",
+        listOf("User Experience", "Universal Experience", "User Extension", "Unique Export"),
+        "User Experience",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Which color is commonly associated with errors?",
+        listOf("Red", "Blue", "Green", "White"),
+        "Red",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is a button mainly used for in UI?",
+        listOf("Performing an action", "Charging battery", "Storing files", "Printing pages"),
+        "Performing an action",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Which element is used to enter text?",
+        listOf("Text Field", "Image", "Card", "Icon"),
+        "Text Field",
+        "Easy",
+        "UI Design"
+    ),
+
+    FITBQuestion(
+        "UI design should be simple and ______ to use.",
+        "easy",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Which layout arranges items vertically in Compose?",
+        listOf("Column", "Row", "Card", "Text"),
+        "Column",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Which layout arranges items horizontally?",
+        listOf("Row", "Column", "Box", "Image"),
+        "Row",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is used to display text in Compose?",
+        listOf("Text", "Button", "Image", "Theme"),
+        "Text",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Which component is clickable?",
+        listOf("Button", "Spacer", "Padding", "Theme"),
+        "Button",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Which design principle improves readability?",
+        listOf("Proper spacing", "Tiny fonts", "Crowded layout", "Random colors"),
+        "Proper spacing",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is an icon?",
+        listOf("Small visual symbol", "Database", "Compiler", "APK file"),
+        "Small visual symbol",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Which color combination improves readability?",
+        listOf("High contrast", "Low contrast", "Same colors", "Transparent text"),
+        "High contrast",
+        "Easy",
+        "UI Design"
+    ),
+
+    FITBQuestion(
+        "A good UI should provide clear user ______.",
+        "feedback",
+        "Easy",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is the purpose of navigation in an app?",
+        listOf("Move between screens", "Charge battery", "Delete files", "Increase RAM"),
+        "Move between screens",
+        "Easy",
+        "UI Design"
+    ),
+
+// UI Design - Medium Questions
+
+    MCQuestion(
+        "What is responsive design?",
+        listOf(
+            "UI adapting to screen sizes",
+            "Removing animations",
+            "Increasing storage",
+            "Compiling faster"
+        ),
+        "UI adapting to screen sizes",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Why is consistency important in UI design?",
+        listOf(
+            "Improves usability",
+            "Reduces storage",
+            "Changes hardware",
+            "Disables navigation"
+        ),
+        "Improves usability",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is a wireframe?",
+        listOf(
+            "Basic UI layout sketch",
+            "Database schema",
+            "Programming language",
+            "APK package"
+        ),
+        "Basic UI layout sketch",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is accessibility in UI design?",
+        listOf(
+            "Designing for all users",
+            "Increasing CPU speed",
+            "Adding more ads",
+            "Removing buttons"
+        ),
+        "Designing for all users",
+        "Medium",
+        "UI Design"
+    ),
+
+    FITBQuestion(
+        "Users should receive immediate ______ after interactions.",
+        "feedback",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is visual hierarchy?",
+        listOf(
+            "Organizing elements by importance",
+            "Deleting layouts",
+            "Compressing images",
+            "Reducing RAM"
+        ),
+        "Organizing elements by importance",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Which font style improves readability?",
+        listOf("Clear and simple fonts", "Tiny fonts", "Random fonts", "Invisible fonts"),
+        "Clear and simple fonts",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Why should buttons have enough size?",
+        listOf(
+            "Easy touch interaction",
+            "Increase APK size",
+            "Reduce navigation",
+            "Improve CPU"
+        ),
+        "Easy touch interaction",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is padding used for?",
+        listOf(
+            "Spacing around elements",
+            "Battery charging",
+            "Storing files",
+            "Deleting components"
+        ),
+        "Spacing around elements",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What does dark mode improve?",
+        listOf(
+            "Visual comfort in low light",
+            "Internet speed",
+            "APK compression",
+            "CPU cooling"
+        ),
+        "Visual comfort in low light",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is the purpose of animations in UI?",
+        listOf(
+            "Improve user experience",
+            "Delete data",
+            "Increase RAM",
+            "Compile Kotlin"
+        ),
+        "Improve user experience",
+        "Medium",
+        "UI Design"
+    ),
+
+    FITBQuestion(
+        "A design with too many elements may look ______.",
+        "cluttered",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Why are icons useful?",
+        listOf(
+            "Quick visual understanding",
+            "Reduce battery",
+            "Install apps",
+            "Delete layouts"
+        ),
+        "Quick visual understanding",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is onboarding in an app?",
+        listOf(
+            "Introducing app features to users",
+            "Deleting users",
+            "Compiling APK",
+            "Changing fonts"
+        ),
+        "Introducing app features to users",
+        "Medium",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is a navigation drawer?",
+        listOf(
+            "Side menu for navigation",
+            "Database manager",
+            "Compiler plugin",
+            "Android emulator"
+        ),
+        "Side menu for navigation",
+        "Medium",
+        "UI Design"
+    ),
+
+// UI Design - Hard Questions
+
+    MCQuestion(
+        "Why should UI state be managed carefully?",
+        listOf(
+            "To keep UI consistent",
+            "To increase storage",
+            "To disable themes",
+            "To reduce RAM"
+        ),
+        "To keep UI consistent",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is cognitive load in UI design?",
+        listOf(
+            "Mental effort required to use UI",
+            "Battery temperature",
+            "Internet bandwidth",
+            "APK size"
+        ),
+        "Mental effort required to use UI",
+        "Hard",
+        "UI Design"
+    ),
+
+    FITBQuestion(
+        "Good UI design should minimize user ______.",
+        "confusion",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Why is user feedback important?",
+        listOf(
+            "Users understand system response",
+            "Increase APK size",
+            "Reduce storage",
+            "Improve compiler speed"
+        ),
+        "Users understand system response",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is the benefit of reusable UI components?",
+        listOf(
+            "Cleaner and maintainable code",
+            "Slower performance",
+            "More bugs",
+            "Hardcoded layouts"
+        ),
+        "Cleaner and maintainable code",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is whitespace in UI design?",
+        listOf(
+            "Empty space improving readability",
+            "Unused RAM",
+            "Missing APK",
+            "Deleted file"
+        ),
+        "Empty space improving readability",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Why should important actions be highlighted?",
+        listOf(
+            "Improve discoverability",
+            "Reduce navigation",
+            "Hide functionality",
+            "Disable interaction"
+        ),
+        "Improve discoverability",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is user-centered design?",
+        listOf(
+            "Design focused on user needs",
+            "Database optimization",
+            "Compiler design",
+            "Hardware testing"
+        ),
+        "Design focused on user needs",
+        "Hard",
+        "UI Design"
+    ),
+
+    FITBQuestion(
+        "Consistent layouts improve user ______.",
+        "experience",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Why should forms be kept short?",
+        listOf(
+            "Reduce user frustration",
+            "Increase APK size",
+            "Slow navigation",
+            "Disable animations"
+        ),
+        "Reduce user frustration",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is the role of typography in UI?",
+        listOf(
+            "Improve readability and hierarchy",
+            "Compile applications",
+            "Store passwords",
+            "Connect database"
+        ),
+        "Improve readability and hierarchy",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "Why should touch targets be large enough?",
+        listOf(
+            "Improve usability",
+            "Reduce battery",
+            "Delete layouts",
+            "Increase APK size"
+        ),
+        "Improve usability",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What is a modal dialog used for?",
+        listOf(
+            "Display important information",
+            "Compile Gradle",
+            "Increase CPU speed",
+            "Delete files"
+        ),
+        "Display important information",
+        "Hard",
+        "UI Design"
+    ),
+
+    FITBQuestion(
+        "Designs should remain visually ______ across screens.",
+        "consistent",
+        "Hard",
+        "UI Design"
+    ),
+
+    MCQuestion(
+        "What improves app usability the most?",
+        listOf(
+            "Simple and intuitive navigation",
+            "Random layouts",
+            "Tiny buttons",
+            "Too many animations"
+        ),
+        "Simple and intuitive navigation",
+        "Hard",
+        "UI Design"
+    )
 )
