@@ -1,23 +1,215 @@
 package com.example.quizapp
 
+import android.R.attr.enabled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+//import androidx.compose.material3.ExposedDropdownMenuBoxScope.menuAnchor
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizSetupScreen(
+    onStartQuiz: (String, Int, Int) -> Unit,
+    onBackClick: () -> Unit
+) {
+    var difficultiesExpanded by remember { mutableStateOf(false) }
+    var countExpanded by remember { mutableStateOf(false) }
+    val difficulties = listOf("Easy", "Medium", "Hard")
+    val questionCount = listOf(5, 10, 15)
+    var selectedDifficulty by remember { mutableStateOf(difficulties[0]) }
+    var selectedQuestionCount by remember { mutableStateOf(questionCount[0]) }
+
+    val totalQuizTime = quizTime(selectedDifficulty, selectedQuestionCount)
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = "back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.padding(padding))
+            Text(
+                text = "Kotlin Compose",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            val minutes = totalQuizTime / 60
+            val seconds = totalQuizTime % 60
+            val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+            Text(
+                text = "Time Limit: ${formattedTime}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Light,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Test your knowledge in Kotlin, Android, and mobile programming. Choose your difficulty, answer questions, beat the timer, and review your results.",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+            ExposedDropdownMenuBox(
+                expanded = difficultiesExpanded,
+                onExpandedChange = { difficultiesExpanded = !difficultiesExpanded }
+            ) {
+                TextField(
+                    modifier = Modifier.menuAnchor(),
+                    value = selectedDifficulty,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = difficultiesExpanded) }
+                )
+                ExposedDropdownMenu(
+                    expanded = difficultiesExpanded,
+                    onDismissRequest = { difficultiesExpanded = false }
+                ) {
+                    difficulties.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(text = item) },
+                            onClick = {
+                                selectedDifficulty = item
+                                difficultiesExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+            ExposedDropdownMenuBox(
+                expanded = countExpanded,
+                onExpandedChange = { countExpanded = !countExpanded }
+            ) {
+                TextField(
+                    modifier = Modifier.menuAnchor(),
+                    value = selectedQuestionCount.toString(),
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = countExpanded) }
+                )
+                ExposedDropdownMenu(
+                    expanded = countExpanded,
+                    onDismissRequest = { countExpanded = false }
+                ) {
+                    questionCount.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(text = item.toString()) },
+                            onClick = {
+                                selectedQuestionCount = item
+                                countExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(
+                onClick = {
+                    onStartQuiz(selectedDifficulty,
+                        selectedQuestionCount,
+                        totalQuizTime)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    text = "Start",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+    }
+}
+
+fun quizTime(difficulty: String, questionNumber: Int): Int {
+    val minutesPerFiveQuestions = when (difficulty) {
+        "Easy" -> 5
+        "Medium" -> 7
+        else -> 10
+    }
+
+    val totalMinutes =
+        (questionNumber / 5) * minutesPerFiveQuestions
+
+    return totalMinutes * 60
+}
+
+@Composable
+fun OldQuizSetupScreen(
     onStartQuiz: (String, Int) -> Unit,
     onBackClick: () -> Unit
 ) {

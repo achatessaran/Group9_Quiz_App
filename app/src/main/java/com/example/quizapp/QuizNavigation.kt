@@ -96,7 +96,7 @@ fun QuizNavigation() {
         composable("quizSetup") {
             QuizSetupScreen(
 
-                onStartQuiz = { difficulty, count ->
+                onStartQuiz = { difficulty, count, time ->
                     // TODO: add "category" or something similars
                     // so that users can switch between different datasets.
                     selectedQuestions = quizQuestions
@@ -104,16 +104,7 @@ fun QuizNavigation() {
                         .shuffled()
                         .take(count)
 
-                    val minutesPerFiveQuestions = when (difficulty) {
-                        "Easy" -> 5
-                        "Medium" -> 7
-                        else -> 10
-                    }
-
-                    val totalMinutes =
-                        (count / 5) * minutesPerFiveQuestions
-
-                    totalQuizTime = totalMinutes * 60
+                    totalQuizTime = time
 
                     navController.navigate("quiz")
                 },
