@@ -27,7 +27,7 @@ val quizQuestions: List<Question> = listOf(
     MCQuestion("Which company develops Android?", listOf("Google", "Apple", "Microsoft", "Samsung"), "Google", "Easy"),
     MCQuestion("What is an app?", listOf("Application software", "Hardware device", "Network cable", "Battery type"), "Application software", "Easy"),
     //MCQuestion("Which file type is commonly used for Android apps?", listOf("APK", "DOCX", "MP3", "JPEG"), "APK", "Easy"),
-    FITBQuestion("Which file type is commonly used for Android apps: ___", "APK", "Easy"),
+    FITBQuestion("Which file type is commonly used for Android apps: ______", "APK", "Easy"),
     MCQuestion("What does UI stand for?", listOf("User Interface", "Universal Input", "User Internet", "Unit Integration"), "User Interface", "Easy"),
     MCQuestion("Which device is mainly used to test Android apps virtually?", listOf("Emulator", "Printer", "Router", "Scanner"), "Emulator", "Easy"),
     MCQuestion("What is a button used for in an app?", listOf("To perform an action", "To store data only", "To charge the phone", "To increase RAM"), "To perform an action", "Easy"),
