@@ -62,7 +62,10 @@ fun HomePageScreen(
                         )
                         DropdownMenuItem(
                             text = { Text("Log out") },
-                            onClick = onLogOut
+                            onClick = {
+                                expanded = false
+                                onLogOut()
+                            }
                         )
                     }
                 },

@@ -1,12 +1,18 @@
 package com.example.quizapp
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
 
 @Composable
 fun QuizNavigation() {
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val loginManager = remember(context) { LoginManager(context) }
 
     val navController = rememberNavController()
 
@@ -15,6 +21,23 @@ fun QuizNavigation() {
     var finalScore by remember { mutableStateOf(0) }
     var userAnswers by remember { mutableStateOf(listOf<String>()) }
     var totalQuizTime by remember { mutableStateOf(300) }
+
+    val sessionUser by loginManager.currentSession.collectAsState(initial = null)
+
+    LaunchedEffect(sessionUser) {
+        val session = sessionUser
+        if (!session.isNullOrBlank()) {
+            userName = session
+
+            val currentRoute = navController.currentBackStackEntry?.destination?.route
+            if (currentRoute != "home") {
+                navController.navigate("home") {
+                    popUpTo("nameInput") { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -39,7 +62,20 @@ fun QuizNavigation() {
                     navController.navigate("quizSetup")
                 },
                 onLogOut = {
-                    navController.navigate("nameInput")}
+                    scope.launch {
+                        loginManager.logout()
+
+                        userName = ""
+                        selectedQuestions = emptyList()
+                        finalScore = 0
+                        userAnswers = emptyList()
+
+                        navController.navigate("nameInput") {
+                            popUpTo("home") { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                }
             )
         }
 

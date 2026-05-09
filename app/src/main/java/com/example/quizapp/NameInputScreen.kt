@@ -14,12 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 // TODO: rename to login screen or something more accurate
 @Composable
@@ -27,10 +29,21 @@ fun NameInputScreen(
     onContinueClick: (String) -> Unit,
     //onBackClick: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val loginManager = remember(context) { LoginManager(context) }
+
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    var loginError by remember { mutableStateOf<String?>(null) }
+
+    val registeredData by loginManager.verifyUser.collectAsState(initial = Pair("", ""))
+    val (regUser, regPass) = registeredData
+
     val loginCompleted = userName.trim().isNotEmpty() && password.isNotBlank()
+    val loginSuccessful = userName.trim() == regUser && password == regPass
 
     Column(
         modifier = Modifier
@@ -94,7 +107,14 @@ fun NameInputScreen(
 
         Button(
             onClick = {
-                onContinueClick(userName.trim())
+                loginError = null
+                if (loginSuccessful) {
+                    val trimmedUser = userName.trim()
+                    scope.launch { loginManager.startSession(trimmedUser) }
+                    onContinueClick(trimmedUser)
+                } else {
+                    loginError = "Invalid username or password"
+                }
             },
             enabled = loginCompleted,
             modifier = Modifier
@@ -107,21 +127,35 @@ fun NameInputScreen(
                 style = MaterialTheme.typography.titleMedium
             )
         }
-        /**
+
+        if (loginError != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = loginError!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedButton(
-            onClick = onBackClick,
+            onClick = {
+                // in a coroutine
+                scope.launch {
+                    loginManager.registerUser(userName.trim(), password)
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                text = "Back to Home",
+                text = "Register",
                 style = MaterialTheme.typography.titleMedium
             )
         }
-        **/
+
     }
 }
