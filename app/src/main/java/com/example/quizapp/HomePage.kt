@@ -29,13 +29,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomePageScreen(
     username: String,
-    onOpenQuiz: () -> Unit,
+    onOpenQuiz: (String) -> Unit,
     onLogOut: () -> Unit
 ) {
     // TODO: add new quiz sets to database!
     val studySets = listOf(
         "Kotlin Quiz Set",
-        "UX Design (coming soon)",
+        "UI Design",
         "Art History (coming soon)",
         "French-A1 (coming soon)",
     )
@@ -97,32 +97,33 @@ fun HomePageScreen(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                studySets.forEachIndexed { index, title ->
-                    val enabled = index == 0
+        studySets.forEachIndexed { index, title ->
+            val enabled = index == 0 || index == 1
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                            .clickable(enabled = enabled) {
-                                onOpenQuiz()
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = if (enabled) 4.dp else 1.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Text(
-                            text = title,
-                            modifier = Modifier.padding(16.dp),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = if (enabled) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (enabled) MaterialTheme.colorScheme.onSurface
-                            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
-                        )
-                    }
-                }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp)
+                    .clickable(enabled = enabled) {
+                        val category = if (index == 0) "Kotlin" else "UI Design"
+                        onOpenQuiz(category)
+                    },
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = if (enabled) 4.dp else 1.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Text(
+                    text = title,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = if (enabled) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                )
+            }
+        }
 
             }
         }
