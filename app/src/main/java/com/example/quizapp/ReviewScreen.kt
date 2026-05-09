@@ -36,7 +36,16 @@ fun ReviewScreen(
         questions.forEachIndexed { index, question ->
 
             val userAnswer = userAnswers.getOrElse(index) { "No answer" }
-            val isCorrect = userAnswer == question.correctAnswer
+            val correctAnswer = when (question) {
+                is MCQuestion -> question.correctAnswer
+                is FITBQuestion -> question.correctAnswer
+                else -> ""
+            }
+            val isCorrect = when (question) {
+                is MCQuestion -> userAnswer == correctAnswer
+                is FITBQuestion -> userAnswer.trim().equals(correctAnswer.trim(), ignoreCase = true)
+                else -> false
+            }
 
             Card(
                 modifier = Modifier
@@ -77,7 +86,7 @@ fun ReviewScreen(
                     )
 
                     Text(
-                        text = "Correct Answer: ${question.correctAnswer}",
+                        text = "Correct Answer: $correctAnswer",
                         style = MaterialTheme.typography.bodyMedium
                     )
 

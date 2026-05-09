@@ -23,10 +23,17 @@ fun QuizScreen(
     require(questions.isNotEmpty()) { "QuizScreen requires at least one question" }
 
     var currentQuestionIndex by remember(questions) { mutableStateOf(0) }
-    var selectedAnswer by remember(questions) { mutableStateOf("") }
     val userAnswers = remember(questions) {
         mutableStateListOf<String>().apply {
             repeat(questions.size) { add("") }
+        }
+    }
+    val shuffledOptionsByQuestion = remember(questions) {
+        questions.map { question ->
+            when (question) {
+                is MCQuestion -> question.options.shuffled()
+                else -> emptyList()
+            }
         }
     }
     var timeLeft by remember(questions, totalTimeInSeconds) { mutableStateOf(totalTimeInSeconds) }
@@ -34,15 +41,20 @@ fun QuizScreen(
 
     fun finishQuiz() {
         val finalScore = questions.indices.count { index ->
-            userAnswers.getOrNull(index) == questions[index].correctAnswer
+            val question = questions[index]
+            val answer = userAnswers.getOrNull(index).orEmpty()
+
+            when (question) {
+                is MCQuestion -> answer == question.correctAnswer
+                is FITBQuestion -> answer.trim().equals(question.correctAnswer.trim(), ignoreCase = true)
+                else -> false
+            }
         }
         onQuizComplete(finalScore, userAnswers.toList())
     }
 
     val currentQuestion = questions[currentQuestionIndex]
-    val shuffledOptions = remember(currentQuestionIndex) {
-        currentQuestion.options.shuffled()
-    }
+
     LaunchedEffect(timeLeft, isQuizFinished) {
         if (timeLeft > 0 && !isQuizFinished) {
             delay(1000)
@@ -56,6 +68,8 @@ fun QuizScreen(
     val minutes = timeLeft / 60
     val seconds = timeLeft % 60
     val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+    val response = userAnswers[currentQuestionIndex]
+    val options = shuffledOptionsByQuestion[currentQuestionIndex]
 
     Column(
         modifier = Modifier
@@ -108,40 +122,35 @@ fun QuizScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
-        ) {
-            Text(
-                text = currentQuestion.questionText,
-                modifier = Modifier.padding(22.dp),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+        when (currentQuestion) {
+            is MCQuestion -> {
+                MCQ(
+                    questionText = currentQuestion.questionText,
+                    options = options,
+                    selectedOption = response,
+                    onOptionSelected = { option -> userAnswers[currentQuestionIndex] = option }
+                )
+            }
 
-        Spacer(modifier = Modifier.height(22.dp))
+            is FITBQuestion -> {
+                FITB(
+                    questionText = currentQuestion.questionText,
+                    answer = response,
+                    onAnswerChange = { text -> userAnswers[currentQuestionIndex] = text }
+                )
+            }
 
-        shuffledOptions.forEach { option ->
-            AnswerOptionCard(
-                optionText = option,
-                selected = selectedAnswer == option,
-                onClick = {
-                    selectedAnswer = option
-                    userAnswers[currentQuestionIndex] = option
-                }
-            )
+            else -> {
+                // TODO: to be removed after populating with other types of question
+                TempOtherQuestion(questionText = currentQuestion.questionText)
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = {
-                userAnswers[currentQuestionIndex] = selectedAnswer
-
                 if (currentQuestionIndex > 0) {
                     currentQuestionIndex--
-                    selectedAnswer = userAnswers[currentQuestionIndex]
                 }
             },
             enabled = (currentQuestionIndex > 0),
@@ -160,17 +169,14 @@ fun QuizScreen(
 
         Button(
             onClick = {
-                userAnswers[currentQuestionIndex] = selectedAnswer
-
                 if (currentQuestionIndex < questions.size - 1) {
                     currentQuestionIndex++
-                    selectedAnswer = userAnswers[currentQuestionIndex]
                 } else {
                     isQuizFinished = true
                     finishQuiz()
                 }
             },
-            enabled = selectedAnswer.isNotBlank(),
+            enabled = userAnswers[currentQuestionIndex].isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
@@ -238,5 +244,94 @@ fun AnswerOptionCard(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
         )
+    }
+}
+
+@Composable
+fun MCQ(
+    questionText: String,
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+    ) {
+        Text(
+            text = questionText,
+            modifier = Modifier.padding(22.dp),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+
+    Spacer(modifier = Modifier.height(22.dp))
+
+    options.forEach { option ->
+        AnswerOptionCard(
+            optionText = option,
+            selected = selectedOption == option,
+            onClick = {
+                onOptionSelected(option)
+            }
+        )
+    }
+}
+
+@Composable
+fun FITB(
+    questionText: String,
+    answer: String,
+    onAnswerChange: (String) -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+    ) {
+        Column(modifier = Modifier.padding(22.dp)) {
+            Text(
+                text = questionText,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    OutlinedTextField(
+        value = answer,
+        onValueChange = onAnswerChange,
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text("Your answer") }
+    )
+}
+
+@Composable
+fun TempOtherQuestion(questionText: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+    ) {
+        Column(modifier = Modifier.padding(22.dp)) {
+            Text(
+                text = questionText,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "This question type isn't supported yet.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
     }
 }

@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun QuizScreen(
-    questions: List<Question>,
+fun QuizScreenOld(
+    questions: List<MCQuestion>,
     onQuizComplete: (Int, List<String>) -> Unit
 ) {
     var currentQuestionIndex by remember { mutableStateOf(0) }

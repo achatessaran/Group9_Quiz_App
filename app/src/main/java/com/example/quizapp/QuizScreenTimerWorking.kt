@@ -15,7 +15,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun QuizScreenOld(
-    questions: List<Question>,
+    questions: List<MCQuestion>,
     totalTimeInSeconds: Int,
     onQuizComplete: (Int, List<String>) -> Unit
 ) {

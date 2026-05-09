@@ -33,7 +33,16 @@ fun ReviewScreenOld(
         questions.forEachIndexed { index, question ->
 
             val userAnswer = userAnswers.getOrElse(index) { "No answer" }
-            val isCorrect = userAnswer == question.correctAnswer
+            val correctAnswer = when (question) {
+                is MCQuestion -> question.correctAnswer
+                is FITBQuestion -> question.correctAnswer
+                else -> ""
+            }
+            val isCorrect = when (question) {
+                is MCQuestion -> userAnswer == correctAnswer
+                is FITBQuestion -> userAnswer.trim().equals(correctAnswer.trim(), ignoreCase = true)
+                else -> false
+            }
 
             Card(
                 modifier = Modifier
@@ -44,7 +53,7 @@ fun ReviewScreenOld(
                     Text(text = "Q${index + 1}. ${question.questionText}")
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Your Answer: $userAnswer")
-                    Text(text = "Correct Answer: ${question.correctAnswer}")
+                    Text(text = "Correct Answer: $correctAnswer")
                     Text(
                         text = if (isCorrect) "Result: Correct" else "Result: Wrong",
                         style = MaterialTheme.typography.labelLarge
