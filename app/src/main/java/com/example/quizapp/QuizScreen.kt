@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -70,6 +71,7 @@ fun QuizScreen(
     val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     val response = userAnswers[currentQuestionIndex]
     val options = shuffledOptionsByQuestion[currentQuestionIndex]
+    val openAlertDialog = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -193,7 +195,8 @@ fun QuizScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedButton(
-            onClick = onExitQuiz,
+            //onClick = onExitQuiz,
+            onClick = { openAlertDialog.value = !openAlertDialog.value },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
@@ -203,6 +206,22 @@ fun QuizScreen(
                 text = "Exit Quiz",
                 style = MaterialTheme.typography.titleMedium
             )
+        }
+
+        when {
+            // [END_EXCLUDE]
+            openAlertDialog.value -> {
+                AlertDialog(
+                    onDismissRequest = { openAlertDialog.value = false },
+                    onConfirmation = {
+                        openAlertDialog.value = false
+                        onExitQuiz()
+                    },
+                    dialogTitle = "Quitting Now?",
+                    dialogText = "Your progress will not be saved."
+                    //icon = Icons.Default.Info
+                )
+            }
         }
 
     }
@@ -334,4 +353,46 @@ fun TempOtherQuestion(questionText: String) {
             )
         }
     }
+}
+
+@Composable
+fun AlertDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    //icon: ImageVector,
+) {
+    AlertDialog(
+        //icon = {
+            //Icon(icon, contentDescription = "Example Icon")
+        //},
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
+        }
+    )
 }
