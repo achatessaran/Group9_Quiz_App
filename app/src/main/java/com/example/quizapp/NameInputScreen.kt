@@ -39,11 +39,12 @@ fun NameInputScreen(
 
     var loginError by remember { mutableStateOf<String?>(null) }
 
-    val registeredData by loginManager.verifyUser.collectAsState(initial = Pair("", ""))
-    val (regUser, regPass) = registeredData
+    //val registeredData by loginManager.verifyUser.collectAsState(initial = Pair("", ""))
+    //val (regUser, regPass) = registeredData
 
     val loginCompleted = userName.trim().isNotEmpty() && password.isNotBlank()
-    val loginSuccessful = userName.trim() == regUser && password == regPass
+    //val loginSuccessful = userName.trim() == regUser && password == regPass
+    //val loginSuccessful = loginManager.verifyUser(userName, password)
 
     Column(
         modifier = Modifier
@@ -108,7 +109,7 @@ fun NameInputScreen(
         Button(
             onClick = {
                 loginError = null
-                if (loginSuccessful) {
+                if (loginManager.verifyUser(userName, password)) {
                     val trimmedUser = userName.trim()
                     scope.launch { loginManager.startSession(trimmedUser) }
                     onContinueClick(trimmedUser)
@@ -141,10 +142,7 @@ fun NameInputScreen(
 
         OutlinedButton(
             onClick = {
-                // in a coroutine
-                scope.launch {
-                    loginManager.registerUser(userName.trim(), password)
-                }
+                loginManager.registerUser(userName.trim(), password)
             },
             modifier = Modifier
                 .fillMaxWidth()
