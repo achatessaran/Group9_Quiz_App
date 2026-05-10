@@ -2,23 +2,33 @@ package com.example.quizapp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.quizapp.Question
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
     userName: String,
     score: Int,
-    totalQuestions: Int,
-    onRestartClick: () -> Unit,
-    onReviewClick: () -> Unit
+    questions:  List<Question>,
+    userAnswers: List<String>,
+    onRestartClick: () -> Unit
 ) {
+    var showDetails by rememberSaveable { mutableStateOf(false) }
+    val resultSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val totalQuestions = questions.size
     val percentage = if (totalQuestions > 0) {
         (score.toFloat() / totalQuestions.toFloat()) * 100
     } else {
@@ -61,8 +71,9 @@ fun ResultScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                modifier = Modifier.padding(28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.padding(28.dp).fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = emoji,
@@ -110,7 +121,8 @@ fun ResultScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = onReviewClick,
+            //onClick = onReviewClick,
+            onClick = { showDetails = true },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
@@ -134,6 +146,18 @@ fun ResultScreen(
             Text(
                 text = "Finish",
                 style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+    if (showDetails) {
+        ModalBottomSheet(
+            onDismissRequest = { showDetails = false },
+            sheetState = resultSheetState,
+        ) {
+            ReviewScreen(
+                questions = questions,
+                userAnswers = userAnswers,
+                onBackToResult = {}
             )
         }
     }

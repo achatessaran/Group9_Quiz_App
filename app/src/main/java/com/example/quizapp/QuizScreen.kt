@@ -1,5 +1,6 @@
 package com.example.quizapp
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -267,21 +268,20 @@ fun AnswerOptionCard(
     onClick: () -> Unit
 ) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 7.dp)
-            .border(
-                width = if (selected) 2.dp else 1.dp,
-                color = if (selected)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .clickable { onClick() },
+            .padding(vertical = 7.dp),
         shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(
+            width = if (selected) 2.dp else 1.dp,
+            color = if (selected)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+        ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (selected) 5.dp else 2.dp
+            0.dp
         ),
         colors = CardDefaults.cardColors(
             containerColor = if (selected)

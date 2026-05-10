@@ -1,6 +1,7 @@
 package com.example.quizapp
 
 sealed interface Question {
+    val correctAnswer: String
     val questionText: String
     val difficulty: String
     val category: String
@@ -9,14 +10,14 @@ sealed interface Question {
 data class MCQuestion(
     override val questionText: String,
     val options: List<String>,
-    val correctAnswer: String,
+    override val correctAnswer: String,
     override val difficulty: String,
     override val category: String = "Kotlin"
 ) : Question
 
 data class FITBQuestion(
     override val questionText: String,
-    val correctAnswer: String,
+    override val correctAnswer: String,
     override val difficulty: String,
     override val category: String = "Kotlin"
 ) : Question

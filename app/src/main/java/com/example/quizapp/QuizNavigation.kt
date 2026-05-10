@@ -142,7 +142,8 @@ fun QuizNavigation() {
             ResultScreen(
                 userName = userName,
                 score = finalScore,
-                totalQuestions = selectedQuestions.size,
+                questions = selectedQuestions,
+                userAnswers = userAnswers,
 
                 onRestartClick = {
                     finalScore = 0
@@ -154,14 +155,11 @@ fun QuizNavigation() {
                             inclusive = true
                         }
                     }
-                },
-
-                onReviewClick = {
-                    navController.navigate("review")
                 }
             )
         }
 
+        /**
         composable("review") {
             ReviewScreen(
                 questions = selectedQuestions,
@@ -171,6 +169,6 @@ fun QuizNavigation() {
                     navController.navigate("result")
                 }
             )
-        }
+        } **/
     }
 }
