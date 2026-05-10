@@ -45,17 +45,6 @@ fun QuizNavigation() {
         //startDestination = "home"
         startDestination = "nameInput"
     ) {
-
-        /**  old landing page
-        composable("home") {
-            HomeScreen(
-                onStartClick = {
-                    navController.navigate("nameInput")
-                }
-            )
-        }
-        **/
-
         composable("home") {
             HomePageScreen(
                 username = userName,
@@ -84,14 +73,21 @@ fun QuizNavigation() {
         composable("nameInput") {
             NameInputScreen(
 
-                onContinueClick = { name ->
+                onLoginClick = { name ->
                     userName = name.ifBlank { "Guest" }
                     navController.navigate("home")
                 },
 
-                //onBackClick = {
-                    //navController.navigate("home")
-                //}
+                onRegisterClick = {
+                    navController.navigate("registration")
+                }
+            )
+        }
+
+        composable("registration") {
+            RegistrationScreen(
+                onBackClick = { navController.navigate("nameInput") },
+                onFinishClick = { navController.navigate("nameInput") }
             )
         }
 

@@ -1,17 +1,13 @@
 package com.example.quizapp
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -20,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -32,8 +27,8 @@ import kotlinx.coroutines.launch
 // TODO: rename to login screen or something more accurate
 @Composable
 fun NameInputScreen(
-    onContinueClick: (String) -> Unit,
-    //onBackClick: () -> Unit
+    onLoginClick: (String) -> Unit,
+    onRegisterClick: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -45,19 +40,14 @@ fun NameInputScreen(
 
     var loginError by remember { mutableStateOf<String?>(null) }
 
-    //val registeredData by loginManager.verifyUser.collectAsState(initial = Pair("", ""))
-    //val (regUser, regPass) = registeredData
-
     val loginCompleted = userName.trim().isNotEmpty() && password.isNotBlank()
-    //val loginSuccessful = userName.trim() == regUser && password == regPass
-    //val loginSuccessful = loginManager.verifyUser(userName, password)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(top=168.dp, start=24.dp, bottom=24.dp, end=24.dp),
-        verticalArrangement = Arrangement.Top,
+            .padding(top=168.dp, start=24.dp, bottom=120.dp, end=24.dp),
+        verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.Start
     ) {
 
@@ -88,7 +78,8 @@ fun NameInputScreen(
                     unfocusedContainerColor = Color.Transparent,
                     disabledContainerColor = Color.Transparent,
                     errorContainerColor = Color.Transparent
-                )
+                ),
+                isError = (loginError != null)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -106,12 +97,22 @@ fun NameInputScreen(
                     unfocusedContainerColor = Color.Transparent,
                     disabledContainerColor = Color.Transparent,
                     errorContainerColor = Color.Transparent
-                )
+                ),
+                isError = (loginError != null)
             )
         }
 
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        if (loginError != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = loginError!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
 
         Button(
             onClick = {
@@ -119,7 +120,7 @@ fun NameInputScreen(
                 if (loginManager.verifyUser(userName, password)) {
                     val trimmedUser = userName.trim()
                     scope.launch { loginManager.startSession(trimmedUser) }
-                    onContinueClick(trimmedUser)
+                    onLoginClick(trimmedUser)
                 } else {
                     loginError = "Invalid username or password"
                 }
@@ -136,21 +137,10 @@ fun NameInputScreen(
             )
         }
 
-        if (loginError != null) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = loginError!!,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedButton(
-            onClick = {
-                loginManager.registerUser(userName.trim(), password)
-            },
+            onClick = onRegisterClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
