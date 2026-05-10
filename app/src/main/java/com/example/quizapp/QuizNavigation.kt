@@ -18,9 +18,9 @@ fun QuizNavigation() {
 
     var userName by remember { mutableStateOf("") }
     var selectedQuestions by remember { mutableStateOf(listOf<Question>()) }
-    var finalScore by remember { mutableStateOf(0) }
+    var finalScore by remember { mutableIntStateOf(0) }
     var userAnswers by remember { mutableStateOf(listOf<String>()) }
-    var totalQuizTime by remember { mutableStateOf(300) }
+    var totalQuizTime by remember { mutableIntStateOf(300) }
     var selectedCategory by remember { mutableStateOf("Kotlin") }
     var selectedQuizTitle by remember { mutableStateOf("") }
 

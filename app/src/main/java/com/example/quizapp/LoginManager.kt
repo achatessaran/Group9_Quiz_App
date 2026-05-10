@@ -8,11 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
 
-private val Context.registryStore by preferencesDataStore(name = "user_registry")
 private val Context.sessionStore by preferencesDataStore(name = "login_session")
-
-private val USERNAME_KEY = stringPreferencesKey("username")
-private val PASSWORD_KEY = stringPreferencesKey("password")
 private val SESSION_USER = stringPreferencesKey("session_user")
 
 class LoginManager(private val context: Context) {
@@ -37,11 +33,6 @@ class LoginManager(private val context: Context) {
     }
 
     // login (reads the currently registered credentials)
-    /**
-    val verifyUser: Flow<Pair<String, String>> = context.registryStore.data.map {
-        Pair(it[USERNAME_KEY] ?: "", it[PASSWORD_KEY] ?: "")
-    }
-    **/
     fun verifyUser(user: String, pass: String): Boolean {
         val file = File(context.filesDir, dbFile)
         if (!file.exists()) return false

@@ -15,13 +15,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.draw.clip
 
 @Composable
 fun ReviewScreen(
     questions: List<Question>,
-    userAnswers: List<String>,
-    onBackToResult: () -> Unit
+    userAnswers: List<String>
 ) {
     Column(
         modifier = Modifier
@@ -37,27 +35,10 @@ fun ReviewScreen(
             val isCorrect = when (question) {
                 is MCQuestion -> userAnswer == question.correctAnswer
                 is FITBQuestion -> userAnswer.trim().equals(question.correctAnswer.trim(), ignoreCase = true)
-                else -> false
             }
 
             QuestionCard(isCorrect, question, index, userAnswer, question.correctAnswer)
         }
-
-        /**
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = onBackToResult,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = "Back to Result",
-                style = MaterialTheme.typography.titleMedium
-            )
-        } **/
     }
 }
 
@@ -114,17 +95,6 @@ fun QuestionCard(
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-
-                /**
-                Text(
-                    text = if (isCorrect) "✓ Correct" else "✗ Wrong",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isCorrect)
-                        MaterialTheme.colorScheme.tertiary
-                    else
-                        MaterialTheme.colorScheme.error
-                ) **/
             }
         }
     }

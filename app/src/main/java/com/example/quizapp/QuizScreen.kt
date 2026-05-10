@@ -2,15 +2,12 @@ package com.example.quizapp
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ArrowBackIos
 import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
-import androidx.compose.material.icons.automirrored.outlined.FactCheck
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,7 +30,7 @@ fun QuizScreen(
 ) {
     require(questions.isNotEmpty()) { "QuizScreen requires at least one question" }
 
-    var currentQuestionIndex by remember(questions) { mutableStateOf(0) }
+    var currentQuestionIndex by remember(questions) { mutableIntStateOf(0) }
     val userAnswers = remember(questions) {
         mutableStateListOf<String>().apply {
             repeat(questions.size) { add("") }
@@ -48,7 +44,7 @@ fun QuizScreen(
             }
         }
     }
-    var timeLeft by remember(questions, totalTimeInSeconds) { mutableStateOf(totalTimeInSeconds) }
+    var timeLeft by remember(questions, totalTimeInSeconds) { mutableIntStateOf(totalTimeInSeconds) }
     var isQuizFinished by remember(questions) { mutableStateOf(false) }
 
     fun finishQuiz() {
@@ -59,7 +55,7 @@ fun QuizScreen(
             when (question) {
                 is MCQuestion -> answer == question.correctAnswer
                 is FITBQuestion -> answer.trim().equals(question.correctAnswer.trim(), ignoreCase = true)
-                else -> false
+                // TODO: more types of questions
             }
         }
         onQuizComplete(finalScore, userAnswers.toList())
@@ -238,7 +234,7 @@ fun QuizScreen(
                         }
 
                         else -> {
-                            // TODO: to be removed after populating with other types of question
+                            // TODO: more types of questions
                             TempOtherQuestion(questionText = currentQuestion.questionText)
                         }
                     }
