@@ -53,18 +53,18 @@ fun QuizNavigation() {
                     navController.navigate("quizSetup")
                 },
                 onLogOut = {
+                    // Navigate first to avoid a recomposition "flash" on Home with cleared state.
+                    navController.navigate("nameInput") {
+                        popUpTo("home") { inclusive = true }
+                        launchSingleTop = true
+                    }
+
                     scope.launch {
                         loginManager.logout()
-
                         userName = ""
                         selectedQuestions = emptyList()
                         finalScore = 0
                         userAnswers = emptyList()
-
-                        navController.navigate("nameInput") {
-                            popUpTo("home") { inclusive = true }
-                            launchSingleTop = true
-                        }
                     }
                 }
             )
@@ -142,15 +142,17 @@ fun QuizNavigation() {
                 userAnswers = userAnswers,
 
                 onRestartClick = {
-                    finalScore = 0
-                    userAnswers = emptyList()
-                    selectedQuestions = emptyList()
-
                     navController.navigate("home") {
                         popUpTo("home") {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
+
+                    // Clear after navigation so ResultScreen doesn't briefly show 0/0.
+                    finalScore = 0
+                    userAnswers = emptyList()
+                    selectedQuestions = emptyList()
                 }
             )
         }

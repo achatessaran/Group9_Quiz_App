@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -26,19 +27,26 @@ fun ResultScreen(
     userAnswers: List<String>,
     onRestartClick: () -> Unit
 ) {
+    // Avoid a one-frame flash with empty values if upstream state clears data during logout.
+    // Keep showing the last non-blank results until this screen is disposed.
+    val stableUserName = remember { userName }
+    val stableScore = remember { score }
+    val stableQuestions = remember { questions }
+    val stableUserAnswers = remember { userAnswers }
+
     var showDetails by rememberSaveable { mutableStateOf(false) }
     val resultSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val totalQuestions = questions.size
+    val totalQuestions = stableQuestions.size
     val percentage = if (totalQuestions > 0) {
-        (score.toFloat() / totalQuestions.toFloat()) * 100
+        (stableScore.toFloat() / totalQuestions.toFloat()) * 100
     } else {
         0f
     }
 
     val message = when {
-        percentage >= 80 -> "Excellent work, $userName!"
-        percentage >= 60 -> "Good job, $userName!"
-        else -> "Keep practicing, $userName!"
+        percentage >= 80 -> "Excellent work, $stableUserName!"
+        percentage >= 60 -> "Good job, $stableUserName!"
+        else -> "Keep practicing, $stableUserName!"
     }
 
     val emoji = when {
@@ -92,7 +100,7 @@ fun ResultScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "$score / $totalQuestions",
+                    text = "$stableScore / $totalQuestions",
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -155,8 +163,8 @@ fun ResultScreen(
             sheetState = resultSheetState,
         ) {
             ReviewScreen(
-                questions = questions,
-                userAnswers = userAnswers,
+                questions = stableQuestions,
+                userAnswers = stableUserAnswers,
                 onBackToResult = {}
             )
         }

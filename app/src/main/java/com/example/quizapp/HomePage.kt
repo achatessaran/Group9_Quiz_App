@@ -32,6 +32,13 @@ fun HomePageScreen(
     onOpenQuiz: (String) -> Unit,
     onLogOut: () -> Unit
 ) {
+    // Avoid a one-frame "Welcome" flash if upstream state clears `username` during logout.
+    // Keep showing the last non-blank username until this screen is disposed.
+    var stableUsername by remember { mutableStateOf(username) }
+    LaunchedEffect(username) {
+        if (username.isNotBlank()) stableUsername = username
+    }
+
     // TODO: add new quiz sets to database!
     val studySets = listOf(
         "Kotlin Quiz Set",
@@ -71,7 +78,7 @@ fun HomePageScreen(
                 },
                 title = {
                     Text(
-                        text = "Welcome, $username",
+                        text = if (stableUsername.isBlank()) "Welcome" else "Welcome, $stableUsername",
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
