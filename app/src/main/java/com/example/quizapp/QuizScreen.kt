@@ -18,8 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +85,7 @@ fun QuizScreen(
     val response = userAnswers[currentQuestionIndex]
     val options = shuffledOptionsByQuestion[currentQuestionIndex]
     val openAlertDialog = remember { mutableStateOf(false) }
+    val alertSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         topBar = {
@@ -242,10 +245,17 @@ fun QuizScreen(
                 }
             }
 
-            when {
-                // [END_EXCLUDE]
-                openAlertDialog.value -> {
-                    ConfirmExitDialog(
+            if (openAlertDialog.value) {
+                ModalBottomSheet(
+                    onDismissRequest = { openAlertDialog.value = !openAlertDialog.value },
+                    sheetState = alertSheetState,
+                    sheetGesturesEnabled = false, // no swiping down
+                    dragHandle = null, // remove the drag handle prevent misleading signal
+                    properties = ModalBottomSheetProperties(
+                        shouldDismissOnClickOutside = false // no tapping outside to close
+                    )
+                ) {
+                    ConfirmExitSheet(
                         onDismissRequest = { openAlertDialog.value = false },
                         onConfirmation = {
                             openAlertDialog.value = false
@@ -253,7 +263,6 @@ fun QuizScreen(
                         },
                         dialogTitle = "Quitting Now?",
                         dialogText = "Your progress will not be saved."
-                        //icon = Icons.Default.Info
                     )
                 }
             }
@@ -401,25 +410,62 @@ fun TempOtherQuestion(questionText: String) {
 }
 
 @Composable
-fun ConfirmExitDialog(
+fun ConfirmExitSheet(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,
     dialogText: String,
 ) {
-    androidx.compose.material3.AlertDialog(
-        title = { Text(text = dialogTitle) },
-        text = { Text(text = dialogText) },
-        onDismissRequest = onDismissRequest,
-        confirmButton = {
-            TextButton(onClick = onConfirmation) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text("Dismiss")
-            }
+    Column(
+        modifier = Modifier
+            .fillMaxHeight(0.315F)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(top = 0.dp, start = 24.dp, bottom = 24.dp, end = 24.dp),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = dialogTitle,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = dialogText,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(
+            onClick = onDismissRequest,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Dismiss",
+                style = MaterialTheme.typography.titleMedium
+            )
         }
-    )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = onConfirmation,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Exit",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
 }

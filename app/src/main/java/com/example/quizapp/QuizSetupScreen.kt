@@ -74,7 +74,7 @@ fun QuizSetupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(top = 120.dp, start = 24.dp, bottom = 60.dp, end = 24.dp),
+                .padding(top = 120.dp, start = 24.dp, bottom = 120.dp, end = 24.dp),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -185,7 +185,6 @@ fun QuizSetupScreen(
                     style = MaterialTheme.typography.titleMedium
                 )
             }
-            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 }

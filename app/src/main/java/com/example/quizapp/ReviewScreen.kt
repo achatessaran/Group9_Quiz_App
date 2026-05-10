@@ -25,7 +25,8 @@ fun ReviewScreen(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            //.fillMaxSize()
+            .fillMaxHeight(0.875F)
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
             .verticalScroll(rememberScrollState())

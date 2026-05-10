@@ -80,7 +80,7 @@ fun HomePageScreen(
                     Text(
                         text = if (stableUsername.isBlank()) "Welcome" else "Welcome, $stableUsername",
                         style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Light,
                         color = MaterialTheme.colorScheme.primary
                     )
                 },
@@ -125,7 +125,7 @@ fun HomePageScreen(
                     text = title,
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (enabled) FontWeight.SemiBold else FontWeight.Normal,
+                    fontWeight = if (enabled) FontWeight.Normal else FontWeight.Light,
                     color = if (enabled) MaterialTheme.colorScheme.onSurface
                     else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
                 )
