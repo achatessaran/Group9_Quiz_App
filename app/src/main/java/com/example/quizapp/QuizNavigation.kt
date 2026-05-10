@@ -22,6 +22,7 @@ fun QuizNavigation() {
     var userAnswers by remember { mutableStateOf(listOf<String>()) }
     var totalQuizTime by remember { mutableStateOf(300) }
     var selectedCategory by remember { mutableStateOf("Kotlin") }
+    var selectedQuizTitle by remember { mutableStateOf("") }
 
     val sessionUser by loginManager.currentSession.collectAsState(initial = null)
 
@@ -48,8 +49,9 @@ fun QuizNavigation() {
         composable("home") {
             HomePageScreen(
                 username = userName,
-                onOpenQuiz = { category ->
+                onOpenQuiz = { category, title ->
                     selectedCategory = category
+                    selectedQuizTitle = title
                     navController.navigate("quizSetup")
                 },
                 onLogOut = {
@@ -93,6 +95,7 @@ fun QuizNavigation() {
 
         composable("quizSetup") {
             QuizSetupScreen(
+                quizTitle = selectedQuizTitle,
 
                 onStartQuiz = { difficulty, count, time ->
                     // TODO: add "category" or something similars

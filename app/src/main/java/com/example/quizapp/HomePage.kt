@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomePageScreen(
     username: String,
-    onOpenQuiz: (String) -> Unit,
+    onOpenQuiz: (String, String) -> Unit,
     onLogOut: () -> Unit
 ) {
     // Avoid a one-frame "Welcome" flash if upstream state clears `username` during logout.
@@ -41,7 +41,7 @@ fun HomePageScreen(
 
     // TODO: add new quiz sets to database!
     val studySets = listOf(
-        "Kotlin Quiz Set",
+        "Kotlin Jetpack Compose",
         "UI Design",
         "Art History (coming soon)",
         "French-A1 (coming soon)",
@@ -113,7 +113,7 @@ fun HomePageScreen(
                     .padding(vertical = 6.dp)
                     .clickable(enabled = enabled) {
                         val category = if (index == 0) "Kotlin" else "UI Design"
-                        onOpenQuiz(category)
+                        onOpenQuiz(category, title)
                     },
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = if (enabled) 4.dp else 1.dp),

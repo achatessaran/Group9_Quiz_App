@@ -142,21 +142,20 @@ fun RegistrationScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            if (registrationError != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = registrationError!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            Text(
+                text = registrationError ?: "",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
-                    if (loginManager.verifyUser(userName, password)) {
-                        registrationError = "Login exists. Please login!"
-                    } else if (!password.equals(repeatedPassword)) {
+                    if (!password.equals(repeatedPassword)) {
                         registrationError = "Password Mismatch!"
-                    } else {
+                    } else if (loginManager.verifyUser(userName, password)) {
+                        registrationError = "Login exists. Please login!"
+                    } else  {
                         registrationError = null
                         loginManager.registerUser(userName.trim(), password)
                         onFinishClick()

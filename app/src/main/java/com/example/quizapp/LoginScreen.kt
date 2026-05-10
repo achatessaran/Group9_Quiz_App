@@ -105,14 +105,12 @@ fun NameInputScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        if (loginError != null) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = loginError!!,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+        Text(
+            text = loginError ?: "",
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
             onClick = {
