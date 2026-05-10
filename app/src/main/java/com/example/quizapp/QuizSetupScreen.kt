@@ -26,14 +26,17 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,7 +121,8 @@ fun QuizSetupScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            //Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.weight(1f))
             ExposedDropdownMenuBox(
                 expanded = difficultiesExpanded,
                 onExpandedChange = { difficultiesExpanded = !difficultiesExpanded }
@@ -128,7 +132,13 @@ fun QuizSetupScreen(
                     value = selectedDifficulty,
                     onValueChange = {},
                     readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = difficultiesExpanded) }
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = difficultiesExpanded) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        errorContainerColor = Color.Transparent
+                    )
                 )
                 ExposedDropdownMenu(
                     expanded = difficultiesExpanded,
@@ -146,7 +156,6 @@ fun QuizSetupScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
             ExposedDropdownMenuBox(
                 expanded = countExpanded,
                 onExpandedChange = { countExpanded = !countExpanded }
@@ -156,7 +165,13 @@ fun QuizSetupScreen(
                     value = selectedQuestionCount.toString(),
                     onValueChange = {},
                     readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = countExpanded) }
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = countExpanded) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        errorContainerColor = Color.Transparent
+                    )
                 )
                 ExposedDropdownMenu(
                     expanded = countExpanded,
@@ -191,6 +206,7 @@ fun QuizSetupScreen(
                     style = MaterialTheme.typography.titleMedium
                 )
             }
+            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -358,12 +359,18 @@ fun FITB(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        OutlinedTextField(
+        TextField(
             value = answer,
             onValueChange = onAnswerChange,
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Your answer") }
+            label = { Text("Your answer") },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                errorContainerColor = Color.Transparent
+            )
         )
     }
 }
