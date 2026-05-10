@@ -300,7 +300,7 @@ fun AnswerOptionCard(
 }
 
 @Composable
-fun ColumnScope.MCQ(
+fun MCQ(
     questionText: String,
     options: List<String>,
     selectedOption: String,
@@ -335,34 +335,37 @@ fun ColumnScope.MCQ(
 }
 
 @Composable
-fun ColumnScope.FITB(
+fun FITB(
     questionText: String,
     answer: String,
     onAnswerChange: (String) -> Unit,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
-    ) {
-        Column(modifier = Modifier.padding(22.dp)) {
-            Text(
-                text = questionText,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold
-            )
+    Column(modifier = Modifier.fillMaxSize())
+    {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        ) {
+            Column(modifier = Modifier.padding(22.dp)) {
+                Text(
+                    text = questionText,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedTextField(
+            value = answer,
+            onValueChange = onAnswerChange,
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Your answer") }
+        )
     }
-
-    Spacer(modifier = Modifier.weight(1f))
-
-    OutlinedTextField(
-        value = answer,
-        onValueChange = onAnswerChange,
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text("Your answer") }
-    )
 }
 
 @Composable
