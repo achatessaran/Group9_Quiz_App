@@ -5,15 +5,22 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBackIos
+import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.outlined.FactCheck
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizScreen(
     questions: List<Question>,
@@ -54,6 +61,8 @@ fun QuizScreen(
         onQuizComplete(finalScore, userAnswers.toList())
     }
 
+
+
     val currentQuestion = questions[currentQuestionIndex]
 
     LaunchedEffect(timeLeft, isQuizFinished) {
@@ -73,157 +82,181 @@ fun QuizScreen(
     val options = shuffledOptionsByQuestion[currentQuestionIndex]
     val openAlertDialog = remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp)
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "⏱ $formattedTime",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = when {
+                                timeLeft <= 30 -> MaterialTheme.colorScheme.error
+                                timeLeft <= 60 -> MaterialTheme.colorScheme.secondary
+                                else -> MaterialTheme.colorScheme.primary
+                            }
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { openAlertDialog.value = !openAlertDialog.value }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = "back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        enabled = ((currentQuestionIndex == questions.size - 1) && userAnswers[currentQuestionIndex].isNotBlank()),
+                        onClick = {
+                            isQuizFinished = true
+                            finishQuiz()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Check,
+                            contentDescription = "Finished"
+                        )
+                    }
+                }
+            )
+        },
+        bottomBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(48.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Q ${currentQuestionIndex + 1}/${questions.size}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Text(
-                    text = "⏱ $formattedTime",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = when {
-                        timeLeft <= 30 -> MaterialTheme.colorScheme.error
-                        timeLeft <= 60 -> MaterialTheme.colorScheme.secondary
-                        else -> MaterialTheme.colorScheme.primary
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        LinearProgressIndicator(
-            progress = {
-                (currentQuestionIndex + 1).toFloat() / questions.size.toFloat()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        when (currentQuestion) {
-            is MCQuestion -> {
-                MCQ(
-                    questionText = currentQuestion.questionText,
-                    options = options,
-                    selectedOption = response,
-                    onOptionSelected = { option -> userAnswers[currentQuestionIndex] = option }
-                )
-            }
-
-            is FITBQuestion -> {
-                FITB(
-                    questionText = currentQuestion.questionText,
-                    answer = response,
-                    onAnswerChange = { text -> userAnswers[currentQuestionIndex] = text }
-                )
-            }
-
-            else -> {
-                // TODO: to be removed after populating with other types of question
-                TempOtherQuestion(questionText = currentQuestion.questionText)
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-        Button(
-            onClick = {
-                if (currentQuestionIndex > 0) {
-                    currentQuestionIndex--
-                }
-            },
-            enabled = (currentQuestionIndex > 0),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = "Prev Question",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = {
-                if (currentQuestionIndex < questions.size - 1) {
-                    currentQuestionIndex++
-                } else {
-                    isQuizFinished = true
-                    finishQuiz()
-                }
-            },
-            enabled = userAnswers[currentQuestionIndex].isNotBlank(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = if (currentQuestionIndex == questions.size - 1)
-                    "Finish Quiz"
-                else
-                    "Next Question",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedButton(
-            //onClick = onExitQuiz,
-            onClick = { openAlertDialog.value = !openAlertDialog.value },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = "Exit Quiz",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        when {
-            // [END_EXCLUDE]
-            openAlertDialog.value -> {
-                AlertDialog(
-                    onDismissRequest = { openAlertDialog.value = false },
-                    onConfirmation = {
-                        openAlertDialog.value = false
-                        onExitQuiz()
+                FilledIconButton(
+                    onClick = {
+                        if (currentQuestionIndex > 0) {
+                            currentQuestionIndex--
+                        }
                     },
-                    dialogTitle = "Quitting Now?",
-                    dialogText = "Your progress will not be saved."
-                    //icon = Icons.Default.Info
-                )
+                    enabled = currentQuestionIndex > 0,
+                    modifier = Modifier
+                        .width(54.dp)
+                        .height(54.dp),
+                    shape = RoundedCornerShape(72.dp)
+                ) {
+                    //Text(
+                        //text = "P",
+                        //style = MaterialTheme.typography.titleMedium
+                    //)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBackIos,
+                        contentDescription = "PrevQuestion"
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(24.dp))
+
+                FilledIconButton(
+                    onClick = {
+                        currentQuestionIndex++
+                    },
+                    enabled = (userAnswers[currentQuestionIndex].isNotBlank() &&
+                            (currentQuestionIndex < questions.size - 1)),
+                    modifier = Modifier
+                        .width(54.dp)
+                        .height(54.dp),
+                    shape = RoundedCornerShape(72.dp)
+                ) {
+                    //Text(
+                        //text = "N",
+                        //style = MaterialTheme.typography.titleMedium
+                    //)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
+                        contentDescription = "NextQuestion"
+                    )
+                }
             }
         }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(padding)
+                .padding(24.dp)
+        ) {
+            LinearProgressIndicator(
+                progress = {
+                    (currentQuestionIndex + 1).toFloat() / questions.size.toFloat()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(10.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            )
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Q ${currentQuestionIndex + 1}/${questions.size}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // The question+answers area fills the remaining height above the bottomBar,
+            // allowing options/fields to stick near the bottom without covering the buttons.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    when (currentQuestion) {
+                        is MCQuestion -> {
+                            MCQ(
+                                questionText = currentQuestion.questionText,
+                                options = options,
+                                selectedOption = response,
+                                onOptionSelected = { option -> userAnswers[currentQuestionIndex] = option }
+                            )
+                        }
+
+                        is FITBQuestion -> {
+                            FITB(
+                                questionText = currentQuestion.questionText,
+                                answer = response,
+                                onAnswerChange = { text -> userAnswers[currentQuestionIndex] = text }
+                            )
+                        }
+
+                        else -> {
+                            // TODO: to be removed after populating with other types of question
+                            TempOtherQuestion(questionText = currentQuestion.questionText)
+                        }
+                    }
+                }
+            }
+
+            when {
+                // [END_EXCLUDE]
+                openAlertDialog.value -> {
+                    ConfirmExitDialog(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
+                            openAlertDialog.value = false
+                            onExitQuiz()
+                        },
+                        dialogTitle = "Quitting Now?",
+                        dialogText = "Your progress will not be saved."
+                        //icon = Icons.Default.Info
+                    )
+                }
+            }
+
+        }
     }
 }
 
@@ -267,40 +300,42 @@ fun AnswerOptionCard(
 }
 
 @Composable
-fun MCQ(
+fun ColumnScope.MCQ(
     questionText: String,
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
-    ) {
-        Text(
-            text = questionText,
-            modifier = Modifier.padding(22.dp),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
+    Column(modifier = Modifier.fillMaxSize()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        ) {
+            Text(
+                text = questionText,
+                modifier = Modifier.padding(22.dp),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
 
-    Spacer(modifier = Modifier.height(22.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
-    options.forEach { option ->
-        AnswerOptionCard(
-            optionText = option,
-            selected = selectedOption == option,
-            onClick = {
-                onOptionSelected(option)
-            }
-        )
+        options.forEach { option ->
+            AnswerOptionCard(
+                optionText = option,
+                selected = selectedOption == option,
+                onClick = {
+                    onOptionSelected(option)
+                }
+            )
+        }
     }
 }
 
 @Composable
-fun FITB(
+fun ColumnScope.FITB(
     questionText: String,
     answer: String,
     onAnswerChange: (String) -> Unit,
@@ -319,7 +354,7 @@ fun FITB(
         }
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.weight(1f))
 
     OutlinedTextField(
         value = answer,
@@ -356,41 +391,23 @@ fun TempOtherQuestion(questionText: String) {
 }
 
 @Composable
-fun AlertDialog(
+fun ConfirmExitDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,
     dialogText: String,
-    //icon: ImageVector,
 ) {
-    AlertDialog(
-        //icon = {
-            //Icon(icon, contentDescription = "Example Icon")
-        //},
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
+    androidx.compose.material3.AlertDialog(
+        title = { Text(text = dialogTitle) },
+        text = { Text(text = dialogText) },
+        onDismissRequest = onDismissRequest,
         confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
+            TextButton(onClick = onConfirmation) {
                 Text("Confirm")
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
+            TextButton(onClick = onDismissRequest) {
                 Text("Dismiss")
             }
         }
