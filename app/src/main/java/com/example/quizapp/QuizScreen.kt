@@ -1,28 +1,36 @@
 package com.example.quizapp
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBackIos
+import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizScreen(
     questions: List<Question>,
     totalTimeInSeconds: Int,
-    onQuizComplete: (Int, List<String>) -> Unit,
+    onQuizComplete: (Int, List<String>, Int) -> Unit,
     onExitQuiz: () -> Unit
 ) {
     require(questions.isNotEmpty()) { "QuizScreen requires at least one question" }
 
-    var currentQuestionIndex by remember(questions) { mutableStateOf(0) }
+    var currentQuestionIndex by remember(questions) { mutableIntStateOf(0) }
     val userAnswers = remember(questions) {
         mutableStateListOf<String>().apply {
             repeat(questions.size) { add("") }
@@ -36,10 +44,11 @@ fun QuizScreen(
             }
         }
     }
-    var timeLeft by remember(questions, totalTimeInSeconds) { mutableStateOf(totalTimeInSeconds) }
+    var timeLeft by remember(questions, totalTimeInSeconds) { mutableIntStateOf(totalTimeInSeconds) }
     var isQuizFinished by remember(questions) { mutableStateOf(false) }
 
     fun finishQuiz() {
+        val elapsedSeconds = (totalTimeInSeconds - timeLeft).coerceAtLeast(0)
         val finalScore = questions.indices.count { index ->
             val question = questions[index]
             val answer = userAnswers.getOrNull(index).orEmpty()
@@ -47,11 +56,13 @@ fun QuizScreen(
             when (question) {
                 is MCQuestion -> answer == question.correctAnswer
                 is FITBQuestion -> answer.trim().equals(question.correctAnswer.trim(), ignoreCase = true)
-                else -> false
+                // TODO: more types of questions
             }
         }
-        onQuizComplete(finalScore, userAnswers.toList())
+        onQuizComplete(finalScore, userAnswers.toList(), elapsedSeconds)
     }
+
+
 
     val currentQuestion = questions[currentQuestionIndex]
 
@@ -70,141 +81,190 @@ fun QuizScreen(
     val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     val response = userAnswers[currentQuestionIndex]
     val options = shuffledOptionsByQuestion[currentQuestionIndex]
+    val openAlertDialog = remember { mutableStateOf(false) }
+    val alertSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp)
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "⏱ $formattedTime",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = when {
+                                timeLeft <= 30 -> MaterialTheme.colorScheme.error
+                                timeLeft <= 60 -> MaterialTheme.colorScheme.secondary
+                                else -> MaterialTheme.colorScheme.primary
+                            }
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { openAlertDialog.value = !openAlertDialog.value }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = "back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        enabled = ((currentQuestionIndex == questions.size - 1) && userAnswers[currentQuestionIndex].isNotBlank()),
+                        onClick = {
+                            isQuizFinished = true
+                            finishQuiz()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Check,
+                            contentDescription = "Finished"
+                        )
+                    }
+                }
+            )
+        },
+        bottomBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(48.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Q ${currentQuestionIndex + 1}/${questions.size}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
+                FilledIconButton(
+                    onClick = {
+                        if (currentQuestionIndex > 0) {
+                            currentQuestionIndex--
+                        }
+                    },
+                    enabled = currentQuestionIndex > 0,
+                    modifier = Modifier
+                        .width(54.dp)
+                        .height(54.dp),
+                    shape = RoundedCornerShape(72.dp)
+                ) {
+                    //Text(
+                        //text = "P",
+                        //style = MaterialTheme.typography.titleMedium
+                    //)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBackIos,
+                        contentDescription = "PrevQuestion"
+                    )
+                }
 
-                Text(
-                    text = "⏱ $formattedTime",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = when {
-                        timeLeft <= 30 -> MaterialTheme.colorScheme.error
-                        timeLeft <= 60 -> MaterialTheme.colorScheme.secondary
-                        else -> MaterialTheme.colorScheme.primary
+                Spacer(modifier = Modifier.width(24.dp))
+
+                FilledIconButton(
+                    onClick = {
+                        currentQuestionIndex++
+                    },
+                    enabled = (userAnswers[currentQuestionIndex].isNotBlank() &&
+                            (currentQuestionIndex < questions.size - 1)),
+                    modifier = Modifier
+                        .width(54.dp)
+                        .height(54.dp),
+                    shape = RoundedCornerShape(72.dp)
+                ) {
+                    //Text(
+                        //text = "N",
+                        //style = MaterialTheme.typography.titleMedium
+                    //)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
+                        contentDescription = "NextQuestion"
+                    )
+                }
+            }
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(padding)
+                .padding(24.dp)
+        ) {
+            LinearProgressIndicator(
+                progress = {
+                    (currentQuestionIndex + 1).toFloat() / questions.size.toFloat()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(10.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Q ${currentQuestionIndex + 1}/${questions.size}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // The question+answers area fills the remaining height above the bottomBar,
+            // allowing options/fields to stick near the bottom without covering the buttons.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    when (currentQuestion) {
+                        is MCQuestion -> {
+                            MCQ(
+                                questionText = currentQuestion.questionText,
+                                options = options,
+                                selectedOption = response,
+                                onOptionSelected = { option -> userAnswers[currentQuestionIndex] = option }
+                            )
+                        }
+
+                        is FITBQuestion -> {
+                            FITB(
+                                questionText = currentQuestion.questionText,
+                                answer = response,
+                                onAnswerChange = { text -> userAnswers[currentQuestionIndex] = text }
+                            )
+                        }
+
+                        else -> {
+                            // TODO: more types of questions
+                            TempOtherQuestion(questionText = currentQuestion.questionText)
+                        }
                     }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        LinearProgressIndicator(
-            progress = {
-                (currentQuestionIndex + 1).toFloat() / questions.size.toFloat()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        when (currentQuestion) {
-            is MCQuestion -> {
-                MCQ(
-                    questionText = currentQuestion.questionText,
-                    options = options,
-                    selectedOption = response,
-                    onOptionSelected = { option -> userAnswers[currentQuestionIndex] = option }
-                )
-            }
-
-            is FITBQuestion -> {
-                FITB(
-                    questionText = currentQuestion.questionText,
-                    answer = response,
-                    onAnswerChange = { text -> userAnswers[currentQuestionIndex] = text }
-                )
-            }
-
-            else -> {
-                // TODO: to be removed after populating with other types of question
-                TempOtherQuestion(questionText = currentQuestion.questionText)
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-        Button(
-            onClick = {
-                if (currentQuestionIndex > 0) {
-                    currentQuestionIndex--
                 }
-            },
-            enabled = (currentQuestionIndex > 0),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = "Prev Question",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
+            }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = {
-                if (currentQuestionIndex < questions.size - 1) {
-                    currentQuestionIndex++
-                } else {
-                    isQuizFinished = true
-                    finishQuiz()
+            if (openAlertDialog.value) {
+                ModalBottomSheet(
+                    onDismissRequest = { openAlertDialog.value = !openAlertDialog.value },
+                    sheetState = alertSheetState,
+                    sheetGesturesEnabled = false, // no swiping down
+                    dragHandle = null, // remove the drag handle prevent misleading signal
+                    properties = ModalBottomSheetProperties(
+                        shouldDismissOnClickOutside = false // no tapping outside to close
+                    )
+                ) {
+                    ConfirmExitSheet(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
+                            openAlertDialog.value = false
+                            onExitQuiz()
+                        },
+                        dialogTitle = "Quitting Now?",
+                        dialogText = "Your progress will not be saved."
+                    )
                 }
-            },
-            enabled = userAnswers[currentQuestionIndex].isNotBlank(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = if (currentQuestionIndex == questions.size - 1)
-                    "Finish Quiz"
-                else
-                    "Next Question",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(12.dp))
+            }
 
-        OutlinedButton(
-            onClick = onExitQuiz,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = "Exit Quiz",
-                style = MaterialTheme.typography.titleMedium
-            )
         }
-
     }
 }
 
@@ -215,21 +275,20 @@ fun AnswerOptionCard(
     onClick: () -> Unit
 ) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 7.dp)
-            .border(
-                width = if (selected) 2.dp else 1.dp,
-                color = if (selected)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .clickable { onClick() },
+            .padding(vertical = 7.dp),
         shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(
+            width = if (selected) 2.dp else 1.dp,
+            color = if (selected)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+        ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (selected) 5.dp else 2.dp
+            0.dp
         ),
         colors = CardDefaults.cardColors(
             containerColor = if (selected)
@@ -254,29 +313,31 @@ fun MCQ(
     selectedOption: String,
     onOptionSelected: (String) -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
-    ) {
-        Text(
-            text = questionText,
-            modifier = Modifier.padding(22.dp),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
+    Column(modifier = Modifier.fillMaxSize()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        ) {
+            Text(
+                text = questionText,
+                modifier = Modifier.padding(22.dp),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
 
-    Spacer(modifier = Modifier.height(22.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
-    options.forEach { option ->
-        AnswerOptionCard(
-            optionText = option,
-            selected = selectedOption == option,
-            onClick = {
-                onOptionSelected(option)
-            }
-        )
+        options.forEach { option ->
+            AnswerOptionCard(
+                optionText = option,
+                selected = selectedOption == option,
+                onClick = {
+                    onOptionSelected(option)
+                }
+            )
+        }
     }
 }
 
@@ -286,29 +347,38 @@ fun FITB(
     answer: String,
     onAnswerChange: (String) -> Unit,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
-    ) {
-        Column(modifier = Modifier.padding(22.dp)) {
-            Text(
-                text = questionText,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold
-            )
+    Column(modifier = Modifier.fillMaxSize())
+    {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        ) {
+            Column(modifier = Modifier.padding(22.dp)) {
+                Text(
+                    text = questionText,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        TextField(
+            value = answer,
+            onValueChange = onAnswerChange,
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Your answer") },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                errorContainerColor = Color.Transparent
+            )
+        )
     }
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    OutlinedTextField(
-        value = answer,
-        onValueChange = onAnswerChange,
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text("Your answer") }
-    )
 }
 
 @Composable
@@ -331,6 +401,67 @@ fun TempOtherQuestion(questionText: String) {
                 text = "This question type isn't supported yet.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
+    }
+}
+
+@Composable
+fun ConfirmExitSheet(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight(0.315F)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(top = 0.dp, start = 24.dp, bottom = 24.dp, end = 24.dp),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = dialogTitle,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = dialogText,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(
+            onClick = onDismissRequest,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Dismiss",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = onConfirmation,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Exit",
+                style = MaterialTheme.typography.titleMedium
             )
         }
     }
