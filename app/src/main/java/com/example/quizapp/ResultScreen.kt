@@ -2,54 +2,33 @@ package com.example.quizapp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
     userName: String,
     score: Int,
-    questions:  List<Question>,
-    userAnswers: List<String>,
-    elapsedSeconds: Int,
-    onRestartClick: () -> Unit
+    totalQuestions: Int,
+    onRestartClick: () -> Unit,
+    onReviewClick: () -> Unit
 ) {
-    // Avoid a one-frame flash with empty values if upstream state clears data during logout.
-    // Keep showing the last non-blank results until this screen is disposed.
-    val stableUserName = remember { userName }
-    val stableScore = remember { score }
-    val stableQuestions = remember { questions }
-    val stableUserAnswers = remember { userAnswers }
-    val stableElapsedSeconds = remember { elapsedSeconds }
-
-    var showDetails by rememberSaveable { mutableStateOf(false) }
-    val resultSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val totalQuestions = stableQuestions.size
     val percentage = if (totalQuestions > 0) {
-        (stableScore.toFloat() / totalQuestions.toFloat()) * 100
+        (score.toFloat() / totalQuestions.toFloat()) * 100
     } else {
         0f
     }
 
     val message = when {
-        percentage >= 80 -> "Excellent work, $stableUserName!"
-        percentage >= 60 -> "Good job, $stableUserName!"
-        else -> "Keep practicing, $stableUserName!"
+        percentage >= 80 -> "Excellent work, $userName!"
+        percentage >= 60 -> "Good job, $userName!"
+        else -> "Keep practicing, $userName!"
     }
 
     val emoji = when {
@@ -58,27 +37,18 @@ fun ResultScreen(
         else -> "📘"
     }
 
-    val elapsedMinutes = stableElapsedSeconds / 60
-    val elapsedRemainderSeconds = stableElapsedSeconds % 60
-    val formattedElapsed = String.format(
-        Locale.getDefault(),
-        "%02d:%02d",
-        elapsedMinutes,
-        elapsedRemainderSeconds
-    )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(top = 120.dp, start = 24.dp, bottom = 120.dp, end = 24.dp),
-        verticalArrangement = Arrangement.Bottom,
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Quiz Completed",
             style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Light,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center
         )
@@ -91,9 +61,8 @@ fun ResultScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                modifier = Modifier.padding(28.dp).fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = emoji,
@@ -111,67 +80,37 @@ fun ResultScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom
-                    ) {
-                        Text(
-                            text = "$stableScore / $totalQuestions",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Score",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(24.dp))
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom
-                    ) {
-                        Text(
-                            text = "${percentage.toInt()}%",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Percentage",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(24.dp))
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom
-                    ) {
-                        Text(
-                            text = formattedElapsed,
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Time Taken",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
+                Text(
+                    text = "$score / $totalQuestions",
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "Score",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "${percentage.toInt()}%",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "Percentage",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(96.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            //onClick = onReviewClick,
-            onClick = { showDetails = true },
+            onClick = onReviewClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
@@ -195,17 +134,6 @@ fun ResultScreen(
             Text(
                 text = "Finish",
                 style = MaterialTheme.typography.titleMedium
-            )
-        }
-    }
-    if (showDetails) {
-        ModalBottomSheet(
-            onDismissRequest = { showDetails = false },
-            sheetState = resultSheetState,
-        ) {
-            ReviewScreen(
-                questions = stableQuestions,
-                userAnswers = stableUserAnswers
             )
         }
     }

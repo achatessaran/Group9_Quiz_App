@@ -9,13 +9,13 @@ import com.example.quizapp.ui.theme.QuizAppTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val loginManager = LoginManager(this)
-        loginManager.initialize()
         enableEdgeToEdge()
         setContent {
             QuizAppTheme {
                 QuizNavigation()
+                }
             }
         }
     }
-}
+
+
