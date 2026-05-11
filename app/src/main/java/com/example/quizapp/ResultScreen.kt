@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,6 +26,7 @@ fun ResultScreen(
     score: Int,
     questions:  List<Question>,
     userAnswers: List<String>,
+    elapsedSeconds: Int,
     onRestartClick: () -> Unit
 ) {
     // Avoid a one-frame flash with empty values if upstream state clears data during logout.
@@ -33,6 +35,7 @@ fun ResultScreen(
     val stableScore = remember { score }
     val stableQuestions = remember { questions }
     val stableUserAnswers = remember { userAnswers }
+    val stableElapsedSeconds = remember { elapsedSeconds }
 
     var showDetails by rememberSaveable { mutableStateOf(false) }
     val resultSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -54,6 +57,15 @@ fun ResultScreen(
         percentage >= 60 -> "👍"
         else -> "📘"
     }
+
+    val elapsedMinutes = stableElapsedSeconds / 60
+    val elapsedRemainderSeconds = stableElapsedSeconds % 60
+    val formattedElapsed = String.format(
+        Locale.getDefault(),
+        "%02d:%02d",
+        elapsedMinutes,
+        elapsedRemainderSeconds
+    )
 
     Column(
         modifier = Modifier
@@ -99,30 +111,59 @@ fun ResultScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(
-                    text = "$stableScore / $totalQuestions",
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Text(
-                    text = "Score",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "${percentage.toInt()}%",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = "Percentage",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        Text(
+                            text = "$stableScore / $totalQuestions",
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Score",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(24.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        Text(
+                            text = "${percentage.toInt()}%",
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Percentage",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(24.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        Text(
+                            text = formattedElapsed,
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Time Taken",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             }
         }
 

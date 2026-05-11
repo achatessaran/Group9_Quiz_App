@@ -25,7 +25,7 @@ import java.util.Locale
 fun QuizScreen(
     questions: List<Question>,
     totalTimeInSeconds: Int,
-    onQuizComplete: (Int, List<String>) -> Unit,
+    onQuizComplete: (Int, List<String>, Int) -> Unit,
     onExitQuiz: () -> Unit
 ) {
     require(questions.isNotEmpty()) { "QuizScreen requires at least one question" }
@@ -48,6 +48,7 @@ fun QuizScreen(
     var isQuizFinished by remember(questions) { mutableStateOf(false) }
 
     fun finishQuiz() {
+        val elapsedSeconds = (totalTimeInSeconds - timeLeft).coerceAtLeast(0)
         val finalScore = questions.indices.count { index ->
             val question = questions[index]
             val answer = userAnswers.getOrNull(index).orEmpty()
@@ -58,7 +59,7 @@ fun QuizScreen(
                 // TODO: more types of questions
             }
         }
-        onQuizComplete(finalScore, userAnswers.toList())
+        onQuizComplete(finalScore, userAnswers.toList(), elapsedSeconds)
     }
 
 
