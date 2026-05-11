@@ -66,7 +66,7 @@ fun ResultScreen(
         Text(
             text = "Quiz Completed",
             style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Light,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center
         )
