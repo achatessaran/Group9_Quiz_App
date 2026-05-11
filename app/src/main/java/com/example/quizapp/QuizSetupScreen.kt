@@ -8,6 +8,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -94,7 +95,10 @@ fun QuizSetupScreen(
                 onExpandedChange = { difficultiesExpanded = !difficultiesExpanded }
             ) {
                 TextField(
-                    modifier = Modifier.menuAnchor(),
+                    modifier = Modifier.menuAnchor(
+                        type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                        enabled = true
+                    ),
                     value = selectedDifficulty,
                     onValueChange = {},
                     readOnly = true,
@@ -127,7 +131,10 @@ fun QuizSetupScreen(
                 onExpandedChange = { countExpanded = !countExpanded }
             ) {
                 TextField(
-                    modifier = Modifier.menuAnchor(),
+                    modifier = Modifier.menuAnchor(
+                        type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                        enabled = true
+                    ),
                     value = selectedQuestionCount.toString(),
                     onValueChange = {},
                     readOnly = true,

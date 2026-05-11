@@ -34,7 +34,7 @@ fun QuizNavigation() {
             val currentRoute = navController.currentBackStackEntry?.destination?.route
             if (currentRoute != "home") {
                 navController.navigate("home") {
-                    popUpTo("nameInput") { inclusive = true }
+                    popUpTo("login") { inclusive = true }
                     launchSingleTop = true
                 }
             }
@@ -44,36 +44,10 @@ fun QuizNavigation() {
     NavHost(
         navController = navController,
         //startDestination = "home"
-        startDestination = "nameInput"
+        startDestination = "login"
     ) {
-        composable("home") {
-            HomePageScreen(
-                username = userName,
-                onOpenQuiz = { category, title ->
-                    selectedCategory = category
-                    selectedQuizTitle = title
-                    navController.navigate("quizSetup")
-                },
-                onLogOut = {
-                    // Navigate first to avoid a recomposition "flash" on Home with cleared state.
-                    navController.navigate("nameInput") {
-                        popUpTo("home") { inclusive = true }
-                        launchSingleTop = true
-                    }
-
-                    scope.launch {
-                        loginManager.logout()
-                        userName = ""
-                        selectedQuestions = emptyList()
-                        finalScore = 0
-                        userAnswers = emptyList()
-                    }
-                }
-            )
-        }
-
-        composable("nameInput") {
-            NameInputScreen(
+        composable("login") {
+            LoginScreen(
 
                 onLoginClick = { name ->
                     userName = name.ifBlank { "Guest" }
@@ -88,8 +62,34 @@ fun QuizNavigation() {
 
         composable("registration") {
             RegistrationScreen(
-                onBackClick = { navController.navigate("nameInput") },
-                onFinishClick = { navController.navigate("nameInput") }
+                onBackClick = { navController.navigate("login") },
+                onFinishClick = { navController.navigate("login") }
+            )
+        }
+
+        composable("home") {
+            HomePageScreen(
+                username = userName,
+                onOpenQuiz = { category, title ->
+                    selectedCategory = category
+                    selectedQuizTitle = title
+                    navController.navigate("quizSetup")
+                },
+                onLogOut = {
+                    // Navigate first to avoid a recomposition "flash" on Home with cleared state.
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                        launchSingleTop = true
+                    }
+
+                    scope.launch {
+                        loginManager.logout()
+                        userName = ""
+                        selectedQuestions = emptyList()
+                        finalScore = 0
+                        userAnswers = emptyList()
+                    }
+                }
             )
         }
 
@@ -118,7 +118,6 @@ fun QuizNavigation() {
                 }
             )
         }
-
 
         composable("quiz") {
             QuizScreen(
@@ -159,17 +158,5 @@ fun QuizNavigation() {
                 }
             )
         }
-
-        /**
-        composable("review") {
-            ReviewScreen(
-                questions = selectedQuestions,
-                userAnswers = userAnswers,
-
-                onBackToResult = {
-                    navController.navigate("result")
-                }
-            )
-        } **/
     }
 }

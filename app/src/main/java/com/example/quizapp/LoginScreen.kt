@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 
 // TODO: rename to login screen or something more accurate
 @Composable
-fun NameInputScreen(
+fun LoginScreen(
     onLoginClick: (String) -> Unit,
     onRegisterClick: () -> Unit
 ) {

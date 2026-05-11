@@ -15,9 +15,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuizAppTheme {
                 QuizNavigation()
-                }
             }
         }
     }
-
-
+}
